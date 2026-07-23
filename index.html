@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="preload" as="image" href="promo1.jpg">
+
 <style>
 html, body {
     margin: 0;
@@ -14,26 +16,26 @@ html, body {
     overflow: hidden;
 }
 
+video, img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Menu video */
 video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;   /* Keep video exactly as it is */
+    object-fit: contain;
+    opacity: 1;
+    z-index: 2;
 }
 
+/* Promotion image */
 img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;     /* Image fills the screen */
-}
-
-#promoImage {
-    display: none;
+    object-fit: cover;
+    opacity: 0;
+    z-index: 1;
 }
 </style>
 
@@ -47,7 +49,9 @@ img {
 
 <img id="promoImage" src="promo1.jpg" alt="Promotion">
 
+
 <script>
+
 const video = document.getElementById("menuVideo");
 const image = document.getElementById("promoImage");
 const params = new URLSearchParams(window.location.search);
@@ -55,9 +59,12 @@ const params = new URLSearchParams(window.location.search);
 // Image display time (milliseconds)
 const imageDuration = 8000;
 
+
 function startVideo() {
-    image.style.display = "none";
-    video.style.display = "block";
+
+    // Hide image, show video
+    image.style.opacity = "0";
+    video.style.opacity = "1";
 
     video.currentTime = 0;
 
@@ -65,49 +72,69 @@ function startVideo() {
 
     if (promise !== undefined) {
         promise.catch(() => {
+
             setTimeout(() => {
                 video.play().catch(() => {});
             }, 1000);
+
         });
     }
 }
 
+
 function showImage() {
+
+    // Hide video, show image
     video.pause();
-    video.style.display = "none";
-    image.style.display = "block";
+
+    video.style.opacity = "0";
+    image.style.opacity = "1";
+
 
     setTimeout(() => {
         startVideo();
     }, imageDuration);
+
 }
 
-// When the video ends, show the image
+
+// When video finishes
 video.addEventListener("ended", showImage);
+
+
 
 if (params.get("compat") === "1") {
 
     video.autoplay = false;
     video.load();
 
+
     window.onload = function () {
         startVideo();
     };
 
+
     document.addEventListener("visibilitychange", function () {
+
         if (!document.hidden) {
             startVideo();
         }
+
     });
 
+
 } else {
+
 
     window.onload = function () {
         startVideo();
     };
 
+
 }
+
 </script>
+
 
 </body>
 </html>
