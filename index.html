@@ -1,22 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 html, body {
-  margin: 0;
-  padding: 0;
-  background: black;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    overflow: hidden;
 }
 
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+video, img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#promoImage {
+    display: none;
 }
 </style>
 
@@ -24,9 +29,73 @@ video {
 
 <body>
 
-<video autoplay muted loop playsinline>
-  <source src="poutine-horizontal.mp4" type="video/mp4">
+<video id="menuVideo" muted playsinline preload="auto">
+    <source src="poutine-vertical1-lg.mp4" type="video/mp4">
 </video>
+
+<img id="promoImage" src="promo.jpg" alt="Promotion">
+
+<script>
+const video = document.getElementById("menuVideo");
+const image = document.getElementById("promoImage");
+const params = new URLSearchParams(window.location.search);
+
+// Image display time (milliseconds)
+const imageDuration = 8000;
+
+function startVideo() {
+    image.style.display = "none";
+    video.style.display = "block";
+
+    video.currentTime = 0;
+
+    const promise = video.play();
+
+    if (promise !== undefined) {
+        promise.catch(() => {
+            setTimeout(() => {
+                video.play().catch(() => {});
+            }, 1000);
+        });
+    }
+}
+
+function showImage() {
+    video.pause();
+    video.style.display = "none";
+    image.style.display = "block";
+
+    setTimeout(() => {
+        startVideo();
+    }, imageDuration);
+}
+
+// When the video ends, show the image
+video.addEventListener("ended", showImage);
+
+if (params.get("compat") === "1") {
+
+    video.autoplay = false;
+    video.load();
+
+    window.onload = function () {
+        startVideo();
+    };
+
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            startVideo();
+        }
+    });
+
+} else {
+
+    window.onload = function () {
+        startVideo();
+    };
+
+}
+</script>
 
 </body>
 </html>
